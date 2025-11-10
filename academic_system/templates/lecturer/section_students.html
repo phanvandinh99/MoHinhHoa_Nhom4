@@ -59,12 +59,21 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{{ url_for('lecturer.grade_student', section_id=section.id, enrollment_id=item.enrollment.id) }}" class="btn btn-sm btn-primary">
-                                <i class="bi bi-pencil"></i> Nhập điểm
-                            </a>
-                            <a href="{{ url_for('lecturer.view_student_profile', student_id=item.student.id) }}" class="btn btn-sm btn-info">
-                                <i class="bi bi-person"></i> Hồ sơ
-                            </a>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('lecturer.grade_student', section_id=section.id, enrollment_id=item.enrollment.id) }}" 
+                                   class="btn btn-sm btn-primary">
+                                    <i class="bi bi-pencil-square"></i> 
+                                    {% if item.grade and item.grade.score %}
+                                        Sửa điểm
+                                    {% else %}
+                                        Nhập điểm
+                                    {% endif %}
+                                </a>
+                                <a href="{{ url_for('lecturer.view_student_profile', student_id=item.student.id) }}" 
+                                   class="btn btn-sm btn-info">
+                                    <i class="bi bi-person"></i> Hồ sơ
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
