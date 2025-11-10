@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Giảng viên{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.students') }}">
+        <i class="bi bi-people"></i> Quản lý Sinh viên
+    </a>
+    <a class="nav-link active" href="{{ url_for('admin.instructors') }}">
+        <i class="bi bi-person-badge"></i> Quản lý Giảng viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.courses') }}">
+        <i class="bi bi-book"></i> Quản lý Môn học
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.reports') }}">
+        <i class="bi bi-graph-up"></i> Báo cáo tổng hợp
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-person-badge"></i> Quản lý Giảng viên</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('admin.add_instructor') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Thêm giảng viên mới
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã GV</th>
+                        <th>Họ và tên</th>
+                        <th>Khoa/Bộ môn</th>
+                        <th>Email</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for instructor in instructors %}
+                    <tr>
+                        <td>{{ instructor.instructor_code }}</td>
+                        <td>{{ instructor.full_name }}</td>
+                        <td>{{ instructor.department or '-' }}</td>
+                        <td>{{ instructor.email or '-' }}</td>
+                        <td>
+                            {% if instructor.is_active %}
+                                <span class="badge bg-success">Hoạt động</span>
+                            {% else %}
+                                <span class="badge bg-danger">Vô hiệu hóa</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_instructor', instructor_id=instructor.id) }}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Sửa
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.toggle_instructor', instructor_id=instructor.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-{{ 'danger' if instructor.is_active else 'success' }}">
+                                    <i class="bi bi-{{ 'x-circle' if instructor.is_active else 'check-circle' }}"></i> 
+                                    {{ 'Vô hiệu hóa' if instructor.is_active else 'Kích hoạt' }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

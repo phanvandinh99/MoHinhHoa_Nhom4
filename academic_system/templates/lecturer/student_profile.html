@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ sơ sinh viên{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link" href="{{ url_for('lecturer.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link" href="{{ url_for('lecturer.sections') }}">
+        <i class="bi bi-book"></i> Lớp học phần
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-person"></i> Hồ sơ sinh viên</h2>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0">Thông tin cá nhân</h5>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <tr>
+                <th width="200">Mã sinh viên:</th>
+                <td>{{ student.student_code }}</td>
+            </tr>
+            <tr>
+                <th>Họ và tên:</th>
+                <td>{{ student.full_name }}</td>
+            </tr>
+            <tr>
+                <th>Ngày sinh:</th>
+                <td>{{ student.date_of_birth.strftime('%d/%m/%Y') if student.date_of_birth else 'Chưa cập nhật' }}</td>
+            </tr>
+            <tr>
+                <th>Email:</th>
+                <td>{{ student.email or 'Chưa cập nhật' }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Kết quả học tập</h5>
+    </div>
+    <div class="card-body">
+        {% if grades_data %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Môn học</th>
+                        <th>Mã môn</th>
+                        <th>Lớp</th>
+                        <th>Học kỳ</th>
+                        <th>Điểm số</th>
+                        <th>Điểm chữ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in grades_data %}
+                    <tr>
+                        <td>{{ item.course.name }}</td>
+                        <td>{{ item.course.course_code }}</td>
+                        <td>{{ item.section.section_code }}</td>
+                        <td>{{ item.semester.name }}</td>
+                        <td>
+                            {% if item.grade and item.grade.score %}
+                                {{ "%.2f"|format(item.grade.score|float) }}
+                            {% else %}
+                                <span class="text-muted">Chưa có</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.grade and item.grade.grade_letter %}
+                                <span class="badge bg-primary">{{ item.grade.grade_letter }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Sinh viên chưa có điểm số nào.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

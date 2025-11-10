@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Thời khóa biểu{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link" href="{{ url_for('student.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link active" href="{{ url_for('student.schedule') }}">
+        <i class="bi bi-calendar-week"></i> Thời khóa biểu
+    </a>
+    <a class="nav-link" href="{{ url_for('student.grades') }}">
+        <i class="bi bi-clipboard-data"></i> Điểm số
+    </a>
+    <a class="nav-link" href="{{ url_for('student.profile') }}">
+        <i class="bi bi-person"></i> Hồ sơ cá nhân
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-calendar-week"></i> Thời khóa biểu</h2>
+
+<div class="card">
+    <div class="card-body">
+        {% if enrollments %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã lớp</th>
+                        <th>Môn học</th>
+                        <th>Mã môn</th>
+                        <th>Tín chỉ</th>
+                        <th>Giảng viên</th>
+                        <th>Học kỳ</th>
+                        <th>Lịch học</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in enrollments %}
+                    <tr>
+                        <td><strong>{{ enrollment.section.section_code }}</strong></td>
+                        <td>{{ enrollment.section.course.name }}</td>
+                        <td>{{ enrollment.section.course.course_code }}</td>
+                        <td>{{ enrollment.section.course.credits }}</td>
+                        <td>{{ enrollment.section.instructor.full_name }}</td>
+                        <td>{{ enrollment.section.semester.name }}</td>
+                        <td>{{ enrollment.section.schedule_info or 'Chưa cập nhật' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Bạn chưa đăng ký lớp học nào.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Lớp học phần{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link" href="{{ url_for('lecturer.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link active" href="{{ url_for('lecturer.sections') }}">
+        <i class="bi bi-book"></i> Lớp học phần
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-book"></i> Lớp học phần được phân công</h2>
+
+{% if sections %}
+<div class="row">
+    {% for section in sections %}
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ section.section_code }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Môn học:</strong> {{ section.course.name }} ({{ section.course.course_code }})</p>
+                <p><strong>Học kỳ:</strong> {{ section.semester.name }}</p>
+                <p><strong>Lịch học:</strong> {{ section.schedule_info or 'Chưa cập nhật' }}</p>
+                <p><strong>Sức chứa:</strong> {{ section.max_capacity }} sinh viên</p>
+                <div class="mt-3">
+                    <a href="{{ url_for('lecturer.section_students', section_id=section.id) }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-people"></i> Xem sinh viên
+                    </a>
+                    <a href="{{ url_for('lecturer.section_report', section_id=section.id) }}" class="btn btn-sm btn-success">
+                        <i class="bi bi-graph-up"></i> Báo cáo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> Bạn chưa được phân công lớp học phần nào.
+</div>
+{% endif %}
+{% endblock %}
+

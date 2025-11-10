@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Trang chủ Giảng viên{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link active" href="{{ url_for('lecturer.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link" href="{{ url_for('lecturer.sections') }}">
+        <i class="bi bi-book"></i> Lớp học phần
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-house-door"></i> Trang chủ</h2>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-book"></i> Lớp đang dạy</h5>
+                <h2 class="mb-0">{{ sections_count }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-people"></i> Tổng sinh viên</h5>
+                <h2 class="mb-0">{{ total_students }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Thông tin giảng viên</h5>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <tr>
+                <th width="200">Mã giảng viên:</th>
+                <td>{{ instructor.instructor_code }}</td>
+            </tr>
+            <tr>
+                <th>Họ và tên:</th>
+                <td>{{ instructor.full_name }}</td>
+            </tr>
+            <tr>
+                <th>Khoa/Bộ môn:</th>
+                <td>{{ instructor.department or 'Chưa cập nhật' }}</td>
+            </tr>
+            <tr>
+                <th>Email:</th>
+                <td>{{ instructor.email or 'Chưa cập nhật' }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Môn học{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.students') }}">
+        <i class="bi bi-people"></i> Quản lý Sinh viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.instructors') }}">
+        <i class="bi bi-person-badge"></i> Quản lý Giảng viên
+    </a>
+    <a class="nav-link active" href="{{ url_for('admin.courses') }}">
+        <i class="bi bi-book"></i> Quản lý Môn học
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.reports') }}">
+        <i class="bi bi-graph-up"></i> Báo cáo tổng hợp
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-book"></i> Quản lý Môn học</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('admin.add_course') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Thêm môn học mới
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã môn</th>
+                        <th>Tên môn học</th>
+                        <th>Tín chỉ</th>
+                        <th>Mô tả</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td><strong>{{ course.course_code }}</strong></td>
+                        <td>{{ course.name }}</td>
+                        <td>{{ course.credits }}</td>
+                        <td>{{ course.description or '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_course', course_id=course.id) }}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Sửa
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.id) }}" class="d-inline" 
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa môn học này?');">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

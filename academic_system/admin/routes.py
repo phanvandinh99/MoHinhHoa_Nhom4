@@ -1,0 +1,319 @@
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request
+from functools import wraps
+from academic_system.models import db, User, Student, Instructor, Course, Section, Enrollment, Grade, Semester
+
+admin_bp = Blueprint('admin', __name__)
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'role' not in session or session['role'] != 'admin':
+            flash('Bạn cần đăng nhập với tài khoản quản trị viên', 'warning')
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@admin_bp.route('/')
+@admin_bp.route('/dashboard')
+@admin_required
+def dashboard():
+    # Thống kê tổng quan
+    total_students = Student.query.count()
+    active_students = Student.query.filter_by(is_active=True).count()
+    total_instructors = Instructor.query.count()
+    active_instructors = Instructor.query.filter_by(is_active=True).count()
+    total_courses = Course.query.count()
+    total_sections = Section.query.count()
+    
+    return render_template('admin/dashboard.html',
+                         total_students=total_students,
+                         active_students=active_students,
+                         total_instructors=total_instructors,
+                         active_instructors=active_instructors,
+                         total_courses=total_courses,
+                         total_sections=total_sections)
+
+# ========== QUẢN LÝ SINH VIÊN ==========
+@admin_bp.route('/students')
+@admin_required
+def students():
+    students_list = Student.query.join(User).all()
+    return render_template('admin/students.html', students=students_list)
+
+@admin_bp.route('/students/add', methods=['GET', 'POST'])
+@admin_required
+def add_student():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        full_name = request.form.get('full_name')
+        student_code = request.form.get('student_code')
+        date_of_birth = request.form.get('date_of_birth')
+        email = request.form.get('email')
+        
+        if not all([username, password, full_name, student_code]):
+            flash('Vui lòng điền đầy đủ thông tin bắt buộc', 'danger')
+            return render_template('admin/add_student.html')
+        
+        # Kiểm tra username và student_code đã tồn tại
+        if User.query.filter_by(username=username).first():
+            flash('Tên đăng nhập đã tồn tại', 'danger')
+            return render_template('admin/add_student.html')
+        
+        if Student.query.filter_by(student_code=student_code).first():
+            flash('Mã sinh viên đã tồn tại', 'danger')
+            return render_template('admin/add_student.html')
+        
+        # Tạo user
+        user = User(username=username, password=password, role='student')
+        db.session.add(user)
+        db.session.flush()
+        
+        # Tạo student
+        student = Student(
+            user_id=user.id,
+            full_name=full_name,
+            student_code=student_code,
+            date_of_birth=date_of_birth if date_of_birth else None,
+            email=email if email else None,
+            is_active=True
+        )
+        db.session.add(student)
+        db.session.commit()
+        
+        flash('Thêm sinh viên thành công', 'success')
+        return redirect(url_for('admin.students'))
+    
+    return render_template('admin/add_student.html')
+
+@admin_bp.route('/students/<int:student_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_student(student_id):
+    student = Student.query.get_or_404(student_id)
+    
+    if request.method == 'POST':
+        student.full_name = request.form.get('full_name')
+        student.student_code = request.form.get('student_code')
+        student.date_of_birth = request.form.get('date_of_birth') or None
+        student.email = request.form.get('email') or None
+        
+        # Kiểm tra student_code trùng
+        existing = Student.query.filter_by(student_code=student.student_code).first()
+        if existing and existing.id != student_id:
+            flash('Mã sinh viên đã tồn tại', 'danger')
+            return render_template('admin/edit_student.html', student=student)
+        
+        db.session.commit()
+        flash('Cập nhật thông tin sinh viên thành công', 'success')
+        return redirect(url_for('admin.students'))
+    
+    return render_template('admin/edit_student.html', student=student)
+
+@admin_bp.route('/students/<int:student_id>/toggle', methods=['POST'])
+@admin_required
+def toggle_student(student_id):
+    student = Student.query.get_or_404(student_id)
+    student.is_active = not student.is_active
+    db.session.commit()
+    
+    status = 'kích hoạt' if student.is_active else 'vô hiệu hóa'
+    flash(f'Đã {status} sinh viên thành công', 'success')
+    return redirect(url_for('admin.students'))
+
+# ========== QUẢN LÝ GIẢNG VIÊN ==========
+@admin_bp.route('/instructors')
+@admin_required
+def instructors():
+    instructors_list = Instructor.query.join(User).all()
+    return render_template('admin/instructors.html', instructors=instructors_list)
+
+@admin_bp.route('/instructors/add', methods=['GET', 'POST'])
+@admin_required
+def add_instructor():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        full_name = request.form.get('full_name')
+        instructor_code = request.form.get('instructor_code')
+        department = request.form.get('department')
+        email = request.form.get('email')
+        
+        if not all([username, password, full_name, instructor_code]):
+            flash('Vui lòng điền đầy đủ thông tin bắt buộc', 'danger')
+            return render_template('admin/add_instructor.html')
+        
+        if User.query.filter_by(username=username).first():
+            flash('Tên đăng nhập đã tồn tại', 'danger')
+            return render_template('admin/add_instructor.html')
+        
+        if Instructor.query.filter_by(instructor_code=instructor_code).first():
+            flash('Mã giảng viên đã tồn tại', 'danger')
+            return render_template('admin/add_instructor.html')
+        
+        user = User(username=username, password=password, role='lecturer')
+        db.session.add(user)
+        db.session.flush()
+        
+        instructor = Instructor(
+            user_id=user.id,
+            full_name=full_name,
+            instructor_code=instructor_code,
+            department=department if department else None,
+            email=email if email else None,
+            is_active=True
+        )
+        db.session.add(instructor)
+        db.session.commit()
+        
+        flash('Thêm giảng viên thành công', 'success')
+        return redirect(url_for('admin.instructors'))
+    
+    return render_template('admin/add_instructor.html')
+
+@admin_bp.route('/instructors/<int:instructor_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_instructor(instructor_id):
+    instructor = Instructor.query.get_or_404(instructor_id)
+    
+    if request.method == 'POST':
+        instructor.full_name = request.form.get('full_name')
+        instructor.instructor_code = request.form.get('instructor_code')
+        instructor.department = request.form.get('department') or None
+        instructor.email = request.form.get('email') or None
+        
+        existing = Instructor.query.filter_by(instructor_code=instructor.instructor_code).first()
+        if existing and existing.id != instructor_id:
+            flash('Mã giảng viên đã tồn tại', 'danger')
+            return render_template('admin/edit_instructor.html', instructor=instructor)
+        
+        db.session.commit()
+        flash('Cập nhật thông tin giảng viên thành công', 'success')
+        return redirect(url_for('admin.instructors'))
+    
+    return render_template('admin/edit_instructor.html', instructor=instructor)
+
+@admin_bp.route('/instructors/<int:instructor_id>/toggle', methods=['POST'])
+@admin_required
+def toggle_instructor(instructor_id):
+    instructor = Instructor.query.get_or_404(instructor_id)
+    instructor.is_active = not instructor.is_active
+    db.session.commit()
+    
+    status = 'kích hoạt' if instructor.is_active else 'vô hiệu hóa'
+    flash(f'Đã {status} giảng viên thành công', 'success')
+    return redirect(url_for('admin.instructors'))
+
+# ========== QUẢN LÝ MÔN HỌC ==========
+@admin_bp.route('/courses')
+@admin_required
+def courses():
+    courses_list = Course.query.all()
+    return render_template('admin/courses.html', courses=courses_list)
+
+@admin_bp.route('/courses/add', methods=['GET', 'POST'])
+@admin_required
+def add_course():
+    if request.method == 'POST':
+        course_code = request.form.get('course_code')
+        name = request.form.get('name')
+        credits = request.form.get('credits')
+        description = request.form.get('description')
+        
+        if not all([course_code, name, credits]):
+            flash('Vui lòng điền đầy đủ thông tin bắt buộc', 'danger')
+            return render_template('admin/add_course.html')
+        
+        if Course.query.filter_by(course_code=course_code).first():
+            flash('Mã môn học đã tồn tại', 'danger')
+            return render_template('admin/add_course.html')
+        
+        try:
+            credits_int = int(credits)
+        except ValueError:
+            flash('Số tín chỉ không hợp lệ', 'danger')
+            return render_template('admin/add_course.html')
+        
+        course = Course(
+            course_code=course_code,
+            name=name,
+            credits=credits_int,
+            description=description if description else None
+        )
+        db.session.add(course)
+        db.session.commit()
+        
+        flash('Thêm môn học thành công', 'success')
+        return redirect(url_for('admin.courses'))
+    
+    return render_template('admin/add_course.html')
+
+@admin_bp.route('/courses/<int:course_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    
+    if request.method == 'POST':
+        course.course_code = request.form.get('course_code')
+        course.name = request.form.get('name')
+        course.credits = int(request.form.get('credits'))
+        course.description = request.form.get('description') or None
+        
+        existing = Course.query.filter_by(course_code=course.course_code).first()
+        if existing and existing.id != course_id:
+            flash('Mã môn học đã tồn tại', 'danger')
+            return render_template('admin/edit_course.html', course=course)
+        
+        db.session.commit()
+        flash('Cập nhật môn học thành công', 'success')
+        return redirect(url_for('admin.courses'))
+    
+    return render_template('admin/edit_course.html', course=course)
+
+@admin_bp.route('/courses/<int:course_id>/delete', methods=['POST'])
+@admin_required
+def delete_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    
+    # Kiểm tra xem có lớp học phần nào đang sử dụng môn học này không
+    if Section.query.filter_by(course_id=course_id).first():
+        flash('Không thể xóa môn học vì đang có lớp học phần sử dụng', 'danger')
+        return redirect(url_for('admin.courses'))
+    
+    db.session.delete(course)
+    db.session.commit()
+    flash('Xóa môn học thành công', 'success')
+    return redirect(url_for('admin.courses'))
+
+# ========== BÁO CÁO TỔNG HỢP ==========
+@admin_bp.route('/reports')
+@admin_required
+def reports():
+    # Thống kê tổng hợp
+    total_students = Student.query.count()
+    total_instructors = Instructor.query.count()
+    total_courses = Course.query.count()
+    total_sections = Section.query.count()
+    total_enrollments = Enrollment.query.filter_by(status='active').count()
+    
+    # Điểm trung bình toàn trường
+    grades = Grade.query.all()
+    avg_score = 0
+    if grades:
+        total = sum(float(g.score) for g in grades if g.score)
+        avg_score = total / len(grades)
+    
+    # Phân bố điểm
+    grade_distribution = {'A': 0, 'B+': 0, 'B': 0, 'C+': 0, 'C': 0, 'D': 0, 'F': 0}
+    for grade in grades:
+        if grade.grade_letter:
+            grade_distribution[grade.grade_letter] = grade_distribution.get(grade.grade_letter, 0) + 1
+    
+    return render_template('admin/reports.html',
+                         total_students=total_students,
+                         total_instructors=total_instructors,
+                         total_courses=total_courses,
+                         total_sections=total_sections,
+                         total_enrollments=total_enrollments,
+                         avg_score=round(avg_score, 2),
+                         grade_distribution=grade_distribution)
+

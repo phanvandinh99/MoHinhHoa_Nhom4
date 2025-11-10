@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Trang chủ Quản trị viên{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.students') }}">
+        <i class="bi bi-people"></i> Quản lý Sinh viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.instructors') }}">
+        <i class="bi bi-person-badge"></i> Quản lý Giảng viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.courses') }}">
+        <i class="bi bi-book"></i> Quản lý Môn học
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.reports') }}">
+        <i class="bi bi-graph-up"></i> Báo cáo tổng hợp
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-house-door"></i> Trang chủ Quản trị viên</h2>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-people"></i> Sinh viên</h5>
+                <h2 class="mb-0">{{ total_students }}</h2>
+                <small>Đang hoạt động: {{ active_students }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-person-badge"></i> Giảng viên</h5>
+                <h2 class="mb-0">{{ total_instructors }}</h2>
+                <small>Đang hoạt động: {{ active_instructors }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-book"></i> Môn học</h5>
+                <h2 class="mb-0">{{ total_courses }}</h2>
+                <small>Lớp học phần: {{ total_sections }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Thống kê nhanh</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Tổng số sinh viên:</strong> {{ total_students }}</p>
+                <p><strong>Sinh viên đang hoạt động:</strong> {{ active_students }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Tổng số giảng viên:</strong> {{ total_instructors }}</p>
+                <p><strong>Giảng viên đang hoạt động:</strong> {{ active_instructors }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
