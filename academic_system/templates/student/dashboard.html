@@ -20,22 +20,31 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="mb-4"><i class="bi bi-house-door"></i> Trang chủ</h2>
+<h2 class="mb-4">
+    <i class="bi bi-house-door-fill" style="color: #667eea;"></i> 
+    Trang chủ
+</h2>
 
 <div class="row mb-4">
-    <div class="col-md-6 mb-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-calendar-week"></i> Lớp đang học</h5>
-                <h2 class="mb-0">{{ active_enrollments }}</h2>
+    <div class="col-md-6 mb-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h5><i class="bi bi-calendar-week"></i> Lớp đang học</h5>
+                    <h2>{{ active_enrollments }}</h2>
+                </div>
+                <i class="bi bi-calendar-week" style="font-size: 4rem; opacity: 0.3;"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-6 mb-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-graph-up"></i> Điểm trung bình</h5>
-                <h2 class="mb-0">{{ avg_score }}</h2>
+    <div class="col-md-6 mb-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h5><i class="bi bi-graph-up-arrow"></i> Điểm trung bình</h5>
+                    <h2>{{ avg_score }}</h2>
+                </div>
+                <i class="bi bi-graph-up-arrow" style="font-size: 4rem; opacity: 0.3;"></i>
             </div>
         </div>
     </div>
@@ -43,37 +52,49 @@
 
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0">Thông tin cá nhân</h5>
+        <h5 class="mb-0"><i class="bi bi-person-badge"></i> Thông tin cá nhân</h5>
     </div>
-    <div class="card-body">
-        <table class="table">
-            <tr>
-                <th width="200">Mã sinh viên:</th>
-                <td>{{ student.student_code }}</td>
-            </tr>
-            <tr>
-                <th>Họ và tên:</th>
-                <td>{{ student.full_name }}</td>
-            </tr>
-            <tr>
-                <th>Email:</th>
-                <td>{{ student.email or 'Chưa cập nhật' }}</td>
-            </tr>
-            <tr>
-                <th>Ngày sinh:</th>
-                <td>{{ student.date_of_birth.strftime('%d/%m/%Y') if student.date_of_birth else 'Chưa cập nhật' }}</td>
-            </tr>
-            <tr>
-                <th>Trạng thái:</th>
-                <td>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Mã sinh viên</small>
+                    <strong class="fs-5">{{ student.student_code }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Họ và tên</small>
+                    <strong class="fs-5">{{ student.full_name }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Email</small>
+                    <strong>{{ student.email or 'Chưa cập nhật' }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Ngày sinh</small>
+                    <strong>{{ student.date_of_birth.strftime('%d/%m/%Y') if student.date_of_birth else 'Chưa cập nhật' }}</strong>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Trạng thái</small>
                     {% if student.is_active %}
-                        <span class="badge bg-success">Đang hoạt động</span>
+                        <span class="badge" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 10px 20px; font-size: 1rem;">
+                            <i class="bi bi-check-circle"></i> Đang hoạt động
+                        </span>
                     {% else %}
-                        <span class="badge bg-danger">Đã vô hiệu hóa</span>
+                        <span class="badge bg-danger" style="padding: 10px 20px; font-size: 1rem;">
+                            <i class="bi bi-x-circle"></i> Đã vô hiệu hóa
+                        </span>
                     {% endif %}
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

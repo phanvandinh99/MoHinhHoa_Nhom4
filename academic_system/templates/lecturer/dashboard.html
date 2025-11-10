@@ -14,22 +14,31 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="mb-4"><i class="bi bi-house-door"></i> Trang chủ</h2>
+<h2 class="mb-4">
+    <i class="bi bi-house-door-fill" style="color: #667eea;"></i> 
+    Trang chủ
+</h2>
 
 <div class="row mb-4">
-    <div class="col-md-6 mb-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-book"></i> Lớp đang dạy</h5>
-                <h2 class="mb-0">{{ sections_count }}</h2>
+    <div class="col-md-6 mb-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h5><i class="bi bi-book"></i> Lớp đang dạy</h5>
+                    <h2>{{ sections_count }}</h2>
+                </div>
+                <i class="bi bi-book" style="font-size: 4rem; opacity: 0.3;"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-6 mb-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-people"></i> Tổng sinh viên</h5>
-                <h2 class="mb-0">{{ total_students }}</h2>
+    <div class="col-md-6 mb-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h5><i class="bi bi-people"></i> Tổng sinh viên</h5>
+                    <h2>{{ total_students }}</h2>
+                </div>
+                <i class="bi bi-people" style="font-size: 4rem; opacity: 0.3;"></i>
             </div>
         </div>
     </div>
@@ -37,27 +46,35 @@
 
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0">Thông tin giảng viên</h5>
+        <h5 class="mb-0"><i class="bi bi-person-badge"></i> Thông tin giảng viên</h5>
     </div>
-    <div class="card-body">
-        <table class="table">
-            <tr>
-                <th width="200">Mã giảng viên:</th>
-                <td>{{ instructor.instructor_code }}</td>
-            </tr>
-            <tr>
-                <th>Họ và tên:</th>
-                <td>{{ instructor.full_name }}</td>
-            </tr>
-            <tr>
-                <th>Khoa/Bộ môn:</th>
-                <td>{{ instructor.department or 'Chưa cập nhật' }}</td>
-            </tr>
-            <tr>
-                <th>Email:</th>
-                <td>{{ instructor.email or 'Chưa cập nhật' }}</td>
-            </tr>
-        </table>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Mã giảng viên</small>
+                    <strong class="fs-5">{{ instructor.instructor_code }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Họ và tên</small>
+                    <strong class="fs-5">{{ instructor.full_name }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Khoa/Bộ môn</small>
+                    <strong>{{ instructor.department or 'Chưa cập nhật' }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="p-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <small class="text-muted d-block mb-1">Email</small>
+                    <strong>{{ instructor.email or 'Chưa cập nhật' }}</strong>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

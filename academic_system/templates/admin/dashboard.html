@@ -23,33 +23,45 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="mb-4"><i class="bi bi-house-door"></i> Trang chủ Quản trị viên</h2>
+<h2 class="mb-4">
+    <i class="bi bi-house-door-fill" style="color: #667eea;"></i> 
+    Trang chủ Quản trị viên
+</h2>
 
 <div class="row mb-4">
-    <div class="col-md-4 mb-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-people"></i> Sinh viên</h5>
-                <h2 class="mb-0">{{ total_students }}</h2>
-                <small>Đang hoạt động: {{ active_students }}</small>
+    <div class="col-md-4 mb-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h5><i class="bi bi-people"></i> Sinh viên</h5>
+                    <h2>{{ total_students }}</h2>
+                    <small style="opacity: 0.9;">Đang hoạt động: {{ active_students }}</small>
+                </div>
+                <i class="bi bi-people" style="font-size: 4rem; opacity: 0.3;"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-person-badge"></i> Giảng viên</h5>
-                <h2 class="mb-0">{{ total_instructors }}</h2>
-                <small>Đang hoạt động: {{ active_instructors }}</small>
+    <div class="col-md-4 mb-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h5><i class="bi bi-person-badge"></i> Giảng viên</h5>
+                    <h2>{{ total_instructors }}</h2>
+                    <small style="opacity: 0.9;">Đang hoạt động: {{ active_instructors }}</small>
+                </div>
+                <i class="bi bi-person-badge" style="font-size: 4rem; opacity: 0.3;"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-4 mb-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-book"></i> Môn học</h5>
-                <h2 class="mb-0">{{ total_courses }}</h2>
-                <small>Lớp học phần: {{ total_sections }}</small>
+    <div class="col-md-4 mb-4">
+        <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h5><i class="bi bi-book"></i> Môn học</h5>
+                    <h2>{{ total_courses }}</h2>
+                    <small style="opacity: 0.9;">Lớp học phần: {{ total_sections }}</small>
+                </div>
+                <i class="bi bi-book" style="font-size: 4rem; opacity: 0.3;"></i>
             </div>
         </div>
     </div>
@@ -57,17 +69,27 @@
 
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0">Thống kê nhanh</h5>
+        <h5 class="mb-0"><i class="bi bi-graph-up"></i> Thống kê nhanh</h5>
     </div>
-    <div class="card-body">
+    <div class="card-body p-4">
         <div class="row">
             <div class="col-md-6">
-                <p><strong>Tổng số sinh viên:</strong> {{ total_students }}</p>
-                <p><strong>Sinh viên đang hoạt động:</strong> {{ active_students }}</p>
+                <div class="p-3 mb-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <strong class="d-block mb-2" style="color: #667eea;">
+                        <i class="bi bi-people"></i> Sinh viên
+                    </strong>
+                    <p class="mb-1"><strong>Tổng số:</strong> {{ total_students }}</p>
+                    <p class="mb-0"><strong>Đang hoạt động:</strong> {{ active_students }}</p>
+                </div>
             </div>
             <div class="col-md-6">
-                <p><strong>Tổng số giảng viên:</strong> {{ total_instructors }}</p>
-                <p><strong>Giảng viên đang hoạt động:</strong> {{ active_instructors }}</p>
+                <div class="p-3 mb-3 rounded" style="background: rgba(102, 126, 234, 0.05);">
+                    <strong class="d-block mb-2" style="color: #667eea;">
+                        <i class="bi bi-person-badge"></i> Giảng viên
+                    </strong>
+                    <p class="mb-1"><strong>Tổng số:</strong> {{ total_instructors }}</p>
+                    <p class="mb-0"><strong>Đang hoạt động:</strong> {{ active_instructors }}</p>
+                </div>
             </div>
         </div>
     </div>
