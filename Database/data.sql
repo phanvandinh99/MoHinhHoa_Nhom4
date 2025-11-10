@@ -136,19 +136,19 @@ INSERT INTO courses (course_code, name, credits, description) VALUES
 
 -- Bước 4: Students (is_active mặc định TRUE)
 INSERT INTO students (user_id, full_name, student_code, date_of_birth, email, is_active) VALUES
-(1, 'DucAnh', 'SV2021001', '2003-05-12', 'ducanh@example.com', TRUE),
-(2, 'HaLinh', 'SV2021002', '2003-08-22', 'halinh@example.com', TRUE),
-(3, 'PhongNguyen', 'SV2021003', '2002-11-30', 'phongnguyen@example.com', TRUE),
-(4, 'LinhCHi', 'SV2021004', '2004-01-15', 'linhchi@example.com', TRUE),
-(5, 'MinhHieu', 'SV2021005', '2003-03-07', 'minhhieu@example.com', TRUE);
+(1, 'DucAnh', 'SV2021001', '2003-05-12', 'ducanh@gmail.com', TRUE),
+(2, 'HaLinh', 'SV2021002', '2003-08-22', 'halinh@gmail.com', TRUE),
+(3, 'PhongNguyen', 'SV2021003', '2002-11-30', 'phongnguyen@gmail.com', TRUE),
+(4, 'LinhCHi', 'SV2021004', '2004-01-15', 'linhchi@gmail.com', TRUE),
+(5, 'MinhHieu', 'SV2021005', '2003-03-07', 'minhhieu@gmail.com', TRUE);
 
 -- Bước 5: Instructors (is_active mặc định TRUE)
 INSERT INTO instructors (user_id, full_name, instructor_code, department, email, is_active) VALUES
-(6, 'Nguyen Van A', 'GV001', 'Công nghệ Thông tin', 'nva@university.edu', TRUE),
-(7, 'Tran Thi B', 'GV002', 'Công nghệ Thông tin', 'ttb@university.edu', TRUE),
-(8, 'Le Quoc C', 'GV003', 'Toán ứng dụng', 'lqc@university.edu', TRUE),
-(9, 'Pham Minh D', 'GV004', 'Ngoại ngữ', 'pmd@university.edu', TRUE),
-(10, 'Hoang Thu E', 'GV005', 'Vật lý', 'hte@university.edu', TRUE);
+(6, 'Nguyen Huynh Duc', 'GV001', 'Công nghệ Thông tin', 'huynhduoc@gmail.com', TRUE),
+(7, 'Tran Thi Thu Thao', 'GV002', 'Công nghệ Thông tin', 'tthao@gmail.com', TRUE),
+(8, 'Le Quoc Cuong', 'GV003', 'Toán ứng dụng', 'lqc@gmail.com', TRUE),
+(9, 'Pham Minh Chinh', 'GV004', 'Ngoại ngữ', 'pmchinh123@gmail.com', TRUE),
+(10, 'Hoang Thu Trang', 'GV005', 'Vật lý', 'httrang111@gmail.com', TRUE);
 
 -- Bước 6: Sections
 INSERT INTO sections (course_id, instructor_id, semester_id, section_code, schedule_info, max_capacity) VALUES

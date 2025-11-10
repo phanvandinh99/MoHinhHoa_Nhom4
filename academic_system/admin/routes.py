@@ -284,6 +284,144 @@ def delete_course(course_id):
     flash('Xóa môn học thành công', 'success')
     return redirect(url_for('admin.courses'))
 
+# ========== QUẢN LÝ LỚP HỌC PHẦN (PHÂN BỔ GIẢNG VIÊN) ==========
+@admin_bp.route('/sections')
+@admin_required
+def sections():
+    sections_list = Section.query.join(Course).join(Instructor).join(Semester).all()
+    return render_template('admin/sections.html', sections=sections_list)
+
+@admin_bp.route('/sections/add', methods=['GET', 'POST'])
+@admin_required
+def add_section():
+    if request.method == 'POST':
+        course_id = request.form.get('course_id')
+        instructor_id = request.form.get('instructor_id')
+        semester_id = request.form.get('semester_id')
+        section_code = request.form.get('section_code')
+        schedule_info = request.form.get('schedule_info')
+        max_capacity = request.form.get('max_capacity')
+        
+        if not all([course_id, instructor_id, semester_id, section_code, max_capacity]):
+            flash('Vui lòng điền đầy đủ thông tin bắt buộc', 'danger')
+            courses = Course.query.all()
+            instructors = Instructor.query.filter_by(is_active=True).all()
+            semesters = Semester.query.all()
+            return render_template('admin/add_section.html',
+                                 courses=courses,
+                                 instructors=instructors,
+                                 semesters=semesters)
+        
+        # Kiểm tra section_code đã tồn tại trong cùng học kỳ và môn học
+        existing = Section.query.filter_by(
+            course_id=course_id,
+            section_code=section_code,
+            semester_id=semester_id
+        ).first()
+        
+        if existing:
+            flash('Mã lớp học phần đã tồn tại cho môn học này trong học kỳ này', 'danger')
+            courses = Course.query.all()
+            instructors = Instructor.query.filter_by(is_active=True).all()
+            semesters = Semester.query.all()
+            return render_template('admin/add_section.html',
+                                 courses=courses,
+                                 instructors=instructors,
+                                 semesters=semesters)
+        
+        try:
+            max_capacity_int = int(max_capacity)
+        except ValueError:
+            flash('Sức chứa không hợp lệ', 'danger')
+            courses = Course.query.all()
+            instructors = Instructor.query.filter_by(is_active=True).all()
+            semesters = Semester.query.all()
+            return render_template('admin/add_section.html',
+                                 courses=courses,
+                                 instructors=instructors,
+                                 semesters=semesters)
+        
+        section = Section(
+            course_id=int(course_id),
+            instructor_id=int(instructor_id),
+            semester_id=int(semester_id),
+            section_code=section_code,
+            schedule_info=schedule_info if schedule_info else None,
+            max_capacity=max_capacity_int
+        )
+        db.session.add(section)
+        db.session.commit()
+        
+        flash('Tạo lớp học phần và phân bổ giảng viên thành công', 'success')
+        return redirect(url_for('admin.sections'))
+    
+    courses = Course.query.all()
+    instructors = Instructor.query.filter_by(is_active=True).all()
+    semesters = Semester.query.all()
+    return render_template('admin/add_section.html',
+                         courses=courses,
+                         instructors=instructors,
+                         semesters=semesters)
+
+@admin_bp.route('/sections/<int:section_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_section(section_id):
+    section = Section.query.get_or_404(section_id)
+    
+    if request.method == 'POST':
+        section.course_id = int(request.form.get('course_id'))
+        section.instructor_id = int(request.form.get('instructor_id'))
+        section.semester_id = int(request.form.get('semester_id'))
+        section.section_code = request.form.get('section_code')
+        section.schedule_info = request.form.get('schedule_info') or None
+        section.max_capacity = int(request.form.get('max_capacity'))
+        
+        # Kiểm tra section_code trùng
+        existing = Section.query.filter_by(
+            course_id=section.course_id,
+            section_code=section.section_code,
+            semester_id=section.semester_id
+        ).first()
+        
+        if existing and existing.id != section_id:
+            flash('Mã lớp học phần đã tồn tại', 'danger')
+            courses = Course.query.all()
+            instructors = Instructor.query.filter_by(is_active=True).all()
+            semesters = Semester.query.all()
+            return render_template('admin/edit_section.html',
+                                 section=section,
+                                 courses=courses,
+                                 instructors=instructors,
+                                 semesters=semesters)
+        
+        db.session.commit()
+        flash('Cập nhật lớp học phần thành công', 'success')
+        return redirect(url_for('admin.sections'))
+    
+    courses = Course.query.all()
+    instructors = Instructor.query.filter_by(is_active=True).all()
+    semesters = Semester.query.all()
+    return render_template('admin/edit_section.html',
+                         section=section,
+                         courses=courses,
+                         instructors=instructors,
+                         semesters=semesters)
+
+@admin_bp.route('/sections/<int:section_id>/delete', methods=['POST'])
+@admin_required
+def delete_section(section_id):
+    section = Section.query.get_or_404(section_id)
+    
+    # Kiểm tra xem có sinh viên nào đang học không
+    if Enrollment.query.filter_by(section_id=section_id, status='active').first():
+        flash('Không thể xóa lớp học phần vì đang có sinh viên đăng ký', 'danger')
+        return redirect(url_for('admin.sections'))
+    
+    db.session.delete(section)
+    db.session.commit()
+    flash('Xóa lớp học phần thành công', 'success')
+    return redirect(url_for('admin.sections'))
+
 # ========== BÁO CÁO TỔNG HỢP ==========
 @admin_bp.route('/reports')
 @admin_required

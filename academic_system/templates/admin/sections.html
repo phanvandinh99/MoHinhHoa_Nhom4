@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Lớp học phần{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.students') }}">
+        <i class="bi bi-people"></i> Quản lý Sinh viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.instructors') }}">
+        <i class="bi bi-person-badge"></i> Quản lý Giảng viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.courses') }}">
+        <i class="bi bi-book"></i> Quản lý Môn học
+    </a>
+    <a class="nav-link active" href="{{ url_for('admin.sections') }}">
+        <i class="bi bi-mortarboard"></i> Quản lý Lớp học phần
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.reports') }}">
+        <i class="bi bi-graph-up"></i> Báo cáo tổng hợp
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">
+    <i class="bi bi-mortarboard-fill" style="color: #667eea;"></i> 
+    Quản lý Lớp học phần (Phân bổ Giảng viên)
+</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('admin.add_section') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Tạo lớp học phần mới
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã lớp</th>
+                        <th>Môn học</th>
+                        <th>Giảng viên</th>
+                        <th>Học kỳ</th>
+                        <th>Lịch học</th>
+                        <th>Sức chứa</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for section in sections %}
+                    <tr>
+                        <td><strong>{{ section.section_code }}</strong></td>
+                        <td>
+                            {{ section.course.name }}
+                            <span class="badge bg-secondary">{{ section.course.course_code }}</span>
+                        </td>
+                        <td>{{ section.instructor.full_name }}</td>
+                        <td>{{ section.semester.name }}</td>
+                        <td>{{ section.schedule_info or '-' }}</td>
+                        <td>{{ section.max_capacity }} sinh viên</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('admin.edit_section', section_id=section.id) }}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil"></i> Sửa
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.delete_section', section_id=section.id) }}" class="d-inline"
+                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa lớp học phần này?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i> Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Sửa lớp học phần{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.sections') }}">
+        <i class="bi bi-mortarboard"></i> Quản lý Lớp học phần
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">
+    <i class="bi bi-pencil-square-fill" style="color: #667eea;"></i> 
+    Sửa lớp học phần
+</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('admin.sections') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-mortarboard"></i> Cập nhật thông tin lớp học phần</h5>
+    </div>
+    <div class="card-body p-4">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="course_id" class="form-label fw-bold">
+                        <i class="bi bi-book"></i> Môn học <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select form-select-lg" id="course_id" name="course_id" required>
+                        {% for course in courses %}
+                        <option value="{{ course.id }}" {% if course.id == section.course_id %}selected{% endif %}>
+                            {{ course.course_code }} - {{ course.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="instructor_id" class="form-label fw-bold">
+                        <i class="bi bi-person-badge"></i> Giảng viên <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select form-select-lg" id="instructor_id" name="instructor_id" required>
+                        {% for instructor in instructors %}
+                        <option value="{{ instructor.id }}" {% if instructor.id == section.instructor_id %}selected{% endif %}>
+                            {{ instructor.instructor_code }} - {{ instructor.full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="semester_id" class="form-label fw-bold">
+                        <i class="bi bi-calendar"></i> Học kỳ <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select form-select-lg" id="semester_id" name="semester_id" required>
+                        {% for semester in semesters %}
+                        <option value="{{ semester.id }}" {% if semester.id == section.semester_id %}selected{% endif %}>
+                            {{ semester.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="section_code" class="form-label fw-bold">
+                        <i class="bi bi-tag"></i> Mã lớp học phần <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control form-control-lg" id="section_code" name="section_code" 
+                           value="{{ section.section_code }}" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="schedule_info" class="form-label fw-bold">
+                        <i class="bi bi-clock"></i> Lịch học
+                    </label>
+                    <input type="text" class="form-control form-control-lg" id="schedule_info" name="schedule_info" 
+                           value="{{ section.schedule_info or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="max_capacity" class="form-label fw-bold">
+                        <i class="bi bi-people"></i> Sức chứa <span class="text-danger">*</span>
+                    </label>
+                    <input type="number" class="form-control form-control-lg" id="max_capacity" name="max_capacity" 
+                           value="{{ section.max_capacity }}" min="1" required>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle"></i> Cập nhật
+                </button>
+                <a href="{{ url_for('admin.sections') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
