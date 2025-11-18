@@ -101,8 +101,24 @@ def enroll():
     if not student_id:
         return redirect(url_for('auth.login'))
     
-    # Lấy học kỳ hiện tại (giả sử là học kỳ đầu tiên trong danh sách)
-    current_semester = Semester.query.order_by(Semester.id.desc()).first()
+    # Lấy học kỳ hiện tại hoặc sắp tới (dựa trên ngày hiện tại)
+    today = datetime.utcnow().date()
+    
+    # Tìm học kỳ đang diễn ra hoặc sắp bắt đầu
+    current_semester = Semester.query.filter(
+        Semester.start_date <= today,
+        Semester.end_date >= today
+    ).first()
+    
+    # Nếu không có học kỳ đang diễn ra, lấy học kỳ sắp tới gần nhất
+    if not current_semester:
+        current_semester = Semester.query.filter(
+            Semester.start_date > today
+        ).order_by(Semester.start_date.asc()).first()
+    
+    # Nếu vẫn không có, lấy học kỳ mới nhất
+    if not current_semester:
+        current_semester = Semester.query.order_by(Semester.start_date.desc()).first()
     
     if not current_semester:
         flash('Chưa có học kỳ nào trong hệ thống', 'warning')

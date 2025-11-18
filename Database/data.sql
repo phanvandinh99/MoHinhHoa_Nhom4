@@ -121,6 +121,7 @@ INSERT INTO users (username, password, role) VALUES
 -- Bước 2: Semesters
 INSERT INTO semesters (name, start_date, end_date) VALUES
 ('2025_1', '2025-08-01', '2025-12-15'),
+('2025_2', '2026-01-10', '2026-05-30'),
 ('2024_2', '2025-01-10', '2025-05-30'),
 ('2024_1', '2024-08-05', '2024-12-20'),
 ('2023_2', '2024-01-08', '2024-05-25'),
@@ -151,12 +152,19 @@ INSERT INTO instructors (user_id, full_name, instructor_code, department, email,
 (10, 'Hoang Thu Trang', 'GV005', 'Vật lý', 'httrang111@gmail.com', TRUE);
 
 -- Bước 6: Sections
+-- Học kỳ 2025_1 (Học kỳ 1 năm 2025)
 INSERT INTO sections (course_id, instructor_id, semester_id, section_code, schedule_info, max_capacity) VALUES
 (1, 1, 1, 'CS101-01', 'Thứ 2,4 - 7h-9h - Phòng A101', 40),
 (2, 2, 1, 'CS201-01', 'Thứ 3,5 - 13h-15h - Phòng B202', 35),
 (3, 3, 1, 'MATH202-01', 'Thứ 2,4 - 15h-17h - Phòng A103', 50),
 (4, 4, 1, 'ENG101-01', 'Thứ 7 - 8h-11h - Phòng C301', 30),
-(5, 5, 1, 'PHYS101-01', 'Thứ 3,5 - 8h-10h - Phòng A105', 45);
+(5, 5, 1, 'PHYS101-01', 'Thứ 3,5 - 8h-10h - Phòng A105', 45),
+-- Học kỳ 2025_2 (Học kỳ 2 năm 2025 - năm sau)
+(1, 1, 2, 'CS101-02', 'Thứ 2,4 - 7h-9h - Phòng A101', 40),
+(2, 2, 2, 'CS201-02', 'Thứ 3,5 - 13h-15h - Phòng B202', 35),
+(3, 3, 2, 'MATH202-02', 'Thứ 2,4 - 15h-17h - Phòng A103', 50),
+(4, 4, 2, 'ENG101-02', 'Thứ 7 - 8h-11h - Phòng C301', 30),
+(5, 5, 2, 'PHYS101-02', 'Thứ 3,5 - 8h-10h - Phòng A105', 45);
 
 -- Bước 7: Enrollments
 INSERT INTO enrollments (student_id, section_id) VALUES
