@@ -36,11 +36,23 @@
             font-weight: 600;
             font-size: 1.3rem;
             letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .navbar-brand i {
             font-size: 1.5rem;
-            margin-right: 8px;
+        }
+
+        .navbar-logo {
+            height: clamp(32px, 4vw, 38px);
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 3px 6px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
         }
 
         .sidebar {
@@ -255,8 +267,10 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="bi bi-mortarboard-fill"></i> Hệ thống Quản lý Học tập
+            <a class="navbar-brand" href="{% if not session.get('username') %}{{ url_for('auth.login') }}{% elif session.get('role') == 'admin' %}{{ url_for('admin.dashboard') }}{% elif session.get('role') == 'lecturer' %}{{ url_for('lecturer.dashboard') }}{% else %}{{ url_for('student.dashboard') }}{% endif %}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo trường" class="navbar-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <i class="bi bi-mortarboard-fill" style="display: none;"></i> 
+                <span>Hệ thống Quản lý Học tập</span>
             </a>
             <div class="navbar-nav ms-auto">
                 {% if session.get('username') %}

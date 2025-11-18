@@ -29,6 +29,16 @@
         -webkit-text-fill-color: transparent;
         margin-bottom: 1rem;
     }
+    
+    .login-logo {
+        max-width: 100px;
+        height: auto;
+        margin-bottom: 1.25rem;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        background: rgba(255, 255, 255, 0.6);
+        padding: 4px 10px;
+    }
 </style>
 
 <div class="login-container">
@@ -36,7 +46,8 @@
         <div class="card">
             <div class="card-body p-5">
                 <div class="login-header">
-                    <i class="bi bi-mortarboard-fill"></i>
+                    <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo trường" class="login-logo" onerror="this.style.display='none'; document.querySelector('.login-header i').style.display='block';">
+                    <i class="bi bi-mortarboard-fill" style="display: none;"></i>
                     <h2 class="mb-2" style="color: #667eea; font-weight: 700;">Đăng nhập</h2>
                     <p class="text-muted">Hệ thống Quản lý Học tập</p>
                 </div>
