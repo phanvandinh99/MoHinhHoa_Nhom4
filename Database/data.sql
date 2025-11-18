@@ -66,6 +66,7 @@ CREATE TABLE sections (
     section_code VARCHAR(10) NOT NULL,
     schedule_info VARCHAR(255),
     max_capacity INT DEFAULT 50,
+    total_sessions INT DEFAULT 15,  -- ✅ Thêm: tổng số buổi học của môn
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     FOREIGN KEY (instructor_id) REFERENCES instructors(id) ON DELETE RESTRICT,
     FOREIGN KEY (semester_id) REFERENCES semesters(id) ON DELETE CASCADE,
@@ -94,6 +95,23 @@ CREATE TABLE grades (
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
     FOREIGN KEY (submitted_by) REFERENCES instructors(id) ON DELETE RESTRICT
+);
+
+-- 10. Bảng attendance: điểm danh
+CREATE TABLE attendance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    enrollment_id INT NOT NULL,
+    section_id INT NOT NULL,
+    session_number INT NOT NULL,
+    attendance_date DATE NOT NULL,
+    status ENUM('present', 'absent', 'late', 'excused') DEFAULT 'absent',
+    marked_by INT NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE CASCADE,
+    FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE,
+    FOREIGN KEY (marked_by) REFERENCES instructors(id) ON DELETE RESTRICT,
+    UNIQUE(enrollment_id, section_id, session_number)  -- Mỗi sinh viên chỉ có 1 bản ghi điểm danh cho mỗi buổi học
 );
 
 -- ====================================================================
@@ -153,18 +171,19 @@ INSERT INTO instructors (user_id, full_name, instructor_code, department, email,
 
 -- Bước 6: Sections
 -- Học kỳ 2025_1 (Học kỳ 1 năm 2025)
-INSERT INTO sections (course_id, instructor_id, semester_id, section_code, schedule_info, max_capacity) VALUES
-(1, 1, 1, 'CS101-01', 'Thứ 2,4 - 7h-9h - Phòng A101', 40),
-(2, 2, 1, 'CS201-01', 'Thứ 3,5 - 13h-15h - Phòng B202', 35),
-(3, 3, 1, 'MATH202-01', 'Thứ 2,4 - 15h-17h - Phòng A103', 50),
-(4, 4, 1, 'ENG101-01', 'Thứ 7 - 8h-11h - Phòng C301', 30),
-(5, 5, 1, 'PHYS101-01', 'Thứ 3,5 - 8h-10h - Phòng A105', 45),
+-- total_sessions: số buổi học (3 tín chỉ = 15 buổi, 2 tín chỉ = 10 buổi)
+INSERT INTO sections (course_id, instructor_id, semester_id, section_code, schedule_info, max_capacity, total_sessions) VALUES
+(1, 1, 1, 'CS101-01', 'Thứ 2,4 - 7h-9h - Phòng A101', 40, 15),
+(2, 2, 1, 'CS201-01', 'Thứ 3,5 - 13h-15h - Phòng B202', 35, 15),
+(3, 3, 1, 'MATH202-01', 'Thứ 2,4 - 15h-17h - Phòng A103', 50, 15),
+(4, 4, 1, 'ENG101-01', 'Thứ 7 - 8h-11h - Phòng C301', 30, 10),
+(5, 5, 1, 'PHYS101-01', 'Thứ 3,5 - 8h-10h - Phòng A105', 45, 15),
 -- Học kỳ 2025_2 (Học kỳ 2 năm 2025 - năm sau)
-(1, 1, 2, 'CS101-02', 'Thứ 2,4 - 7h-9h - Phòng A101', 40),
-(2, 2, 2, 'CS201-02', 'Thứ 3,5 - 13h-15h - Phòng B202', 35),
-(3, 3, 2, 'MATH202-02', 'Thứ 2,4 - 15h-17h - Phòng A103', 50),
-(4, 4, 2, 'ENG101-02', 'Thứ 7 - 8h-11h - Phòng C301', 30),
-(5, 5, 2, 'PHYS101-02', 'Thứ 3,5 - 8h-10h - Phòng A105', 45);
+(1, 1, 2, 'CS101-02', 'Thứ 2,4 - 7h-9h - Phòng A101', 40, 15),
+(2, 2, 2, 'CS201-02', 'Thứ 3,5 - 13h-15h - Phòng B202', 35, 15),
+(3, 3, 2, 'MATH202-02', 'Thứ 2,4 - 15h-17h - Phòng A103', 50, 15),
+(4, 4, 2, 'ENG101-02', 'Thứ 7 - 8h-11h - Phòng C301', 30, 10),
+(5, 5, 2, 'PHYS101-02', 'Thứ 3,5 - 8h-10h - Phòng A105', 45, 15);
 
 -- Bước 7: Enrollments
 INSERT INTO enrollments (student_id, section_id) VALUES

@@ -7,8 +7,23 @@
     <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
         <i class="bi bi-house-door"></i> Trang chủ
     </a>
-    <a class="nav-link" href="{{ url_for('admin.instructors') }}">
+    <a class="nav-link" href="{{ url_for('admin.students') }}">
+        <i class="bi bi-people"></i> Quản lý Sinh viên
+    </a>
+    <a class="nav-link active" href="{{ url_for('admin.instructors') }}">
         <i class="bi bi-person-badge"></i> Quản lý Giảng viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.courses') }}">
+        <i class="bi bi-book"></i> Quản lý Môn học
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.sections') }}">
+        <i class="bi bi-mortarboard"></i> Quản lý Lớp học phần
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.attendance') }}">
+        <i class="bi bi-clipboard-check"></i> Điểm danh lớp học
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.reports') }}">
+        <i class="bi bi-graph-up"></i> Báo cáo tổng hợp
     </a>
 </nav>
 {% endblock %}

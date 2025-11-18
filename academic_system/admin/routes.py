@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from functools import wraps
-from academic_system.models import db, User, Student, Instructor, Course, Section, Enrollment, Grade, Semester
+from academic_system.models import db, User, Student, Instructor, Course, Section, Enrollment, Grade, Semester, Attendance
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -454,4 +454,114 @@ def reports():
                          total_enrollments=total_enrollments,
                          avg_score=round(avg_score, 2),
                          grade_distribution=grade_distribution)
+
+@admin_bp.route('/attendance')
+@admin_required
+def attendance():
+    # Lấy tất cả các lớp học phần
+    sections = Section.query.join(Course).join(Semester).join(Instructor).all()
+    
+    # Thống kê điểm danh cho mỗi lớp
+    sections_attendance = []
+    for section in sections:
+        # Lấy số sinh viên đã đăng ký
+        enrollments_count = Enrollment.query.filter_by(
+            section_id=section.id,
+            status='active'
+        ).count()
+        
+        # Lấy số buổi đã điểm danh
+        attendances = Attendance.query.filter_by(section_id=section.id).all()
+        sessions_marked = len(set((att.session_number for att in attendances)))
+        
+        # Tính tỷ lệ điểm danh
+        total_possible = enrollments_count * section.total_sessions
+        total_marked = len(attendances)
+        attendance_percentage = (total_marked / total_possible * 100) if total_possible > 0 else 0
+        
+        sections_attendance.append({
+            'section': section,
+            'enrollments_count': enrollments_count,
+            'sessions_marked': sessions_marked,
+            'total_sessions': section.total_sessions,
+            'attendance_percentage': round(attendance_percentage, 1),
+            'total_marked': total_marked
+        })
+    
+    return render_template('admin/attendance.html',
+                         sections_attendance=sections_attendance)
+
+@admin_bp.route('/attendance/section/<int:section_id>')
+@admin_required
+def section_attendance_detail(section_id):
+    section = Section.query.get_or_404(section_id)
+    
+    # Lấy tất cả sinh viên đã đăng ký
+    enrollments = Enrollment.query.filter_by(
+        section_id=section_id,
+        status='active'
+    ).all()
+    
+    # Lấy tất cả điểm danh
+    attendances = Attendance.query.filter_by(section_id=section_id).all()
+    
+    # Tạo dictionary để dễ truy cập
+    attendance_dict = {}
+    for att in attendances:
+        key = (att.enrollment_id, att.session_number)
+        attendance_dict[key] = att
+    
+    # Tổng hợp thống kê điểm danh cho mỗi sinh viên
+    students_attendance = []
+    for enrollment in enrollments:
+        present_count = 0
+        absent_count = 0
+        late_count = 0
+        excused_count = 0
+        
+        # Tạo bảng điểm danh chi tiết
+        session_details = []
+        for session_num in range(1, section.total_sessions + 1):
+            key = (enrollment.id, session_num)
+            if key in attendance_dict:
+                att = attendance_dict[key]
+                session_details.append({
+                    'session_number': session_num,
+                    'status': att.status,
+                    'date': att.attendance_date,
+                    'notes': att.notes
+                })
+                if att.status == 'present':
+                    present_count += 1
+                elif att.status == 'absent':
+                    absent_count += 1
+                elif att.status == 'late':
+                    late_count += 1
+                elif att.status == 'excused':
+                    excused_count += 1
+            else:
+                session_details.append({
+                    'session_number': session_num,
+                    'status': None,
+                    'date': None,
+                    'notes': None
+                })
+        
+        attendance_rate = (present_count / section.total_sessions * 100) if section.total_sessions > 0 else 0
+        
+        students_attendance.append({
+            'enrollment': enrollment,
+            'student': enrollment.student,
+            'present_count': present_count,
+            'absent_count': absent_count,
+            'late_count': late_count,
+            'excused_count': excused_count,
+            'attendance_rate': round(attendance_rate, 1),
+            'session_details': session_details
+        })
+    
+    return render_template('admin/section_attendance_detail.html',
+                         section=section,
+                         students_attendance=students_attendance,
+                         total_sessions=section.total_sessions)
 

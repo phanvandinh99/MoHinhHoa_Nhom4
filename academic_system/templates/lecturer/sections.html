@@ -47,10 +47,14 @@
                     <small class="text-muted d-block mb-1">Sức chứa</small>
                     <strong>{{ section.max_capacity }} sinh viên</strong>
                 </div>
-                <div class="mt-4 d-flex gap-2">
+                <div class="mt-4 d-flex gap-2 flex-wrap">
                     <a href="{{ url_for('lecturer.section_students', section_id=section.id) }}" 
-                       class="btn btn-primary flex-fill">
+                       class="btn btn-primary">
                         <i class="bi bi-people"></i> Xem sinh viên & Nhập điểm
+                    </a>
+                    <a href="{{ url_for('lecturer.section_attendance', section_id=section.id) }}" 
+                       class="btn btn-info">
+                        <i class="bi bi-clipboard-check"></i> Điểm danh
                     </a>
                     <a href="{{ url_for('lecturer.section_report', section_id=section.id) }}" 
                        class="btn btn-success">

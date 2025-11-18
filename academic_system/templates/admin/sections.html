@@ -19,6 +19,9 @@
     <a class="nav-link active" href="{{ url_for('admin.sections') }}">
         <i class="bi bi-mortarboard"></i> Quản lý Lớp học phần
     </a>
+    <a class="nav-link" href="{{ url_for('admin.attendance') }}">
+        <i class="bi bi-clipboard-check"></i> Điểm danh lớp học
+    </a>
     <a class="nav-link" href="{{ url_for('admin.reports') }}">
         <i class="bi bi-graph-up"></i> Báo cáo tổng hợp
     </a>
@@ -65,9 +68,12 @@
                         <td>{{ section.schedule_info or '-' }}</td>
                         <td>{{ section.max_capacity }} sinh viên</td>
                         <td>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
                                 <a href="{{ url_for('admin.edit_section', section_id=section.id) }}" class="btn btn-sm btn-warning">
                                     <i class="bi bi-pencil"></i> Sửa
+                                </a>
+                                <a href="{{ url_for('admin.section_attendance_detail', section_id=section.id) }}" class="btn btn-sm btn-info">
+                                    <i class="bi bi-clipboard-check"></i> Điểm danh
                                 </a>
                                 <form method="POST" action="{{ url_for('admin.delete_section', section_id=section.id) }}" class="d-inline"
                                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa lớp học phần này?');">

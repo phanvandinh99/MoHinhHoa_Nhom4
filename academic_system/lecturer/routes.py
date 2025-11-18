@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from functools import wraps
-from academic_system.models import db, Instructor, Section, Enrollment, Student, Course, Semester, Grade
+from academic_system.models import db, Instructor, Section, Enrollment, Student, Course, Semester, Grade, Attendance
+from datetime import datetime
 
 lecturer_bp = Blueprint('lecturer', __name__)
 
@@ -192,4 +193,150 @@ def view_student_profile(student_id):
     return render_template('lecturer/student_profile.html',
                          student=student,
                          grades_data=grades_data)
+
+@lecturer_bp.route('/section/<int:section_id>/attendance')
+@lecturer_required
+def section_attendance(section_id):
+    instructor_id = session.get('instructor_id')
+    section = Section.query.get_or_404(section_id)
+    
+    # Kiểm tra quyền
+    if section.instructor_id != instructor_id:
+        flash('Bạn không có quyền truy cập lớp này', 'danger')
+        return redirect(url_for('lecturer.sections'))
+    
+    # Lấy tất cả sinh viên đã đăng ký
+    enrollments = Enrollment.query.filter_by(
+        section_id=section_id,
+        status='active'
+    ).all()
+    
+    # Lấy tất cả điểm danh đã có
+    attendances = Attendance.query.filter_by(section_id=section_id).all()
+    
+    # Tạo dictionary để dễ truy cập
+    attendance_dict = {}
+    for att in attendances:
+        key = (att.enrollment_id, att.session_number)
+        attendance_dict[key] = att
+    
+    # Tổng hợp thống kê điểm danh cho mỗi sinh viên
+    students_attendance = []
+    for enrollment in enrollments:
+        present_count = 0
+        absent_count = 0
+        late_count = 0
+        excused_count = 0
+        
+        for session_num in range(1, section.total_sessions + 1):
+            key = (enrollment.id, session_num)
+            if key in attendance_dict:
+                att = attendance_dict[key]
+                if att.status == 'present':
+                    present_count += 1
+                elif att.status == 'absent':
+                    absent_count += 1
+                elif att.status == 'late':
+                    late_count += 1
+                elif att.status == 'excused':
+                    excused_count += 1
+        
+        attendance_rate = (present_count / section.total_sessions * 100) if section.total_sessions > 0 else 0
+        
+        students_attendance.append({
+            'enrollment': enrollment,
+            'student': enrollment.student,
+            'present_count': present_count,
+            'absent_count': absent_count,
+            'late_count': late_count,
+            'excused_count': excused_count,
+            'attendance_rate': round(attendance_rate, 1)
+        })
+    
+    return render_template('lecturer/section_attendance.html',
+                         section=section,
+                         students_attendance=students_attendance,
+                         total_sessions=section.total_sessions)
+
+@lecturer_bp.route('/section/<int:section_id>/attendance/session/<int:session_number>', methods=['GET', 'POST'])
+@lecturer_required
+def mark_attendance(section_id, session_number):
+    instructor_id = session.get('instructor_id')
+    section = Section.query.get_or_404(section_id)
+    
+    # Kiểm tra quyền
+    if section.instructor_id != instructor_id:
+        flash('Bạn không có quyền truy cập lớp này', 'danger')
+        return redirect(url_for('lecturer.sections'))
+    
+    # Kiểm tra số buổi học hợp lệ
+    if session_number < 1 or session_number > section.total_sessions:
+        flash(f'Số buổi học không hợp lệ. Môn này có {section.total_sessions} buổi học', 'danger')
+        return redirect(url_for('lecturer.section_attendance', section_id=section_id))
+    
+    # Lấy tất cả sinh viên đã đăng ký
+    enrollments = Enrollment.query.filter_by(
+        section_id=section_id,
+        status='active'
+    ).all()
+    
+    if request.method == 'POST':
+        attendance_date = request.form.get('attendance_date')
+        if not attendance_date:
+            attendance_date = datetime.utcnow().date()
+        else:
+            attendance_date = datetime.strptime(attendance_date, '%Y-%m-%d').date()
+        
+        # Xử lý điểm danh cho từng sinh viên
+        for enrollment in enrollments:
+            status_key = f'status_{enrollment.id}'
+            notes_key = f'notes_{enrollment.id}'
+            
+            status = request.form.get(status_key, 'absent')
+            notes = request.form.get(notes_key, '')
+            
+            # Tìm hoặc tạo bản ghi điểm danh
+            attendance = Attendance.query.filter_by(
+                enrollment_id=enrollment.id,
+                section_id=section_id,
+                session_number=session_number
+            ).first()
+            
+            if attendance:
+                attendance.status = status
+                attendance.attendance_date = attendance_date
+                attendance.notes = notes
+                attendance.marked_by = instructor_id
+            else:
+                attendance = Attendance(
+                    enrollment_id=enrollment.id,
+                    section_id=section_id,
+                    session_number=session_number,
+                    attendance_date=attendance_date,
+                    status=status,
+                    marked_by=instructor_id,
+                    notes=notes
+                )
+                db.session.add(attendance)
+        
+        db.session.commit()
+        flash(f'Điểm danh buổi {session_number} thành công!', 'success')
+        return redirect(url_for('lecturer.section_attendance', section_id=section_id))
+    
+    # Lấy điểm danh hiện tại của buổi học này (nếu có)
+    current_attendances = {}
+    for enrollment in enrollments:
+        att = Attendance.query.filter_by(
+            enrollment_id=enrollment.id,
+            section_id=section_id,
+            session_number=session_number
+        ).first()
+        if att:
+            current_attendances[enrollment.id] = att
+    
+    return render_template('lecturer/mark_attendance.html',
+                         section=section,
+                         enrollments=enrollments,
+                         session_number=session_number,
+                         current_attendances=current_attendances)
 

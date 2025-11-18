@@ -18,9 +18,12 @@
     <i class="bi bi-people"></i> Danh sách sinh viên - {{ section.section_code }}
 </h2>
 
-<div class="mb-3">
+<div class="mb-3 d-flex gap-2">
     <a href="{{ url_for('lecturer.sections') }}" class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+    <a href="{{ url_for('lecturer.section_attendance', section_id=section.id) }}" class="btn btn-info">
+        <i class="bi bi-clipboard-check"></i> Điểm danh lớp học
     </a>
 </div>
 

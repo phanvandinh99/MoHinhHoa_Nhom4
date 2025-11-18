@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Điểm danh{% endblock %}
+
+{% block sidebar %}
+<nav class="nav flex-column">
+    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+        <i class="bi bi-house-door"></i> Trang chủ
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.students') }}">
+        <i class="bi bi-people"></i> Quản lý Sinh viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.instructors') }}">
+        <i class="bi bi-person-badge"></i> Quản lý Giảng viên
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.courses') }}">
+        <i class="bi bi-book"></i> Quản lý Môn học
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.sections') }}">
+        <i class="bi bi-mortarboard"></i> Quản lý Lớp học phần
+    </a>
+    <a class="nav-link active" href="{{ url_for('admin.attendance') }}">
+        <i class="bi bi-clipboard-check"></i> Điểm danh lớp học
+    </a>
+    <a class="nav-link" href="{{ url_for('admin.reports') }}">
+        <i class="bi bi-graph-up"></i> Báo cáo tổng hợp
+    </a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">
+    <i class="bi bi-clipboard-check" style="color: #667eea;"></i> 
+    Quản lý Điểm danh lớp học
+</h2>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-list-ul"></i> Danh sách lớp học phần
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if sections_attendance %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã lớp</th>
+                        <th>Môn học</th>
+                        <th>Giảng viên</th>
+                        <th>Học kỳ</th>
+                        <th>Số SV</th>
+                        <th>Tổng buổi</th>
+                        <th>Đã điểm danh</th>
+                        <th>Tỷ lệ</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in sections_attendance %}
+                    <tr>
+                        <td><strong>{{ item.section.section_code }}</strong></td>
+                        <td>
+                            {{ item.section.course.name }}
+                            <span class="badge bg-secondary ms-2">{{ item.section.course.course_code }}</span>
+                        </td>
+                        <td>{{ item.section.instructor.full_name }}</td>
+                        <td>{{ item.section.semester.name }}</td>
+                        <td>{{ item.enrollments_count }}</td>
+                        <td>{{ item.total_sessions }} buổi</td>
+                        <td>
+                            <span class="badge bg-info">{{ item.sessions_marked }}/{{ item.total_sessions }}</span>
+                        </td>
+                        <td>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar {% if item.attendance_percentage >= 80 %}bg-success{% elif item.attendance_percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ item.attendance_percentage }}%">
+                                    {{ item.attendance_percentage }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.section_attendance_detail', section_id=item.section.id) }}" 
+                               class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye"></i> Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Chưa có lớp học phần nào trong hệ thống.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

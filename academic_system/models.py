@@ -88,8 +88,10 @@ class Section(db.Model):
     section_code = db.Column(db.String(10), nullable=False)
     schedule_info = db.Column(db.String(255))
     max_capacity = db.Column(db.Integer, default=50)
+    total_sessions = db.Column(db.Integer, default=15)  # Tổng số buổi học
     
     enrollments = db.relationship('Enrollment', backref='section', lazy=True)
+    attendances = db.relationship('Attendance', backref='section', lazy=True)
     
     __table_args__ = (
         db.UniqueConstraint('course_id', 'section_code', 'semester_id', name='unique_section'),
@@ -108,6 +110,7 @@ class Enrollment(db.Model):
     status = db.Column(db.Enum('active', 'dropped', 'completed'), default='active')
     
     grade = db.relationship('Grade', backref='enrollment', uselist=False, cascade='all, delete-orphan')
+    attendances = db.relationship('Attendance', backref='enrollment', lazy=True)
     
     __table_args__ = (
         db.UniqueConstraint('student_id', 'section_id', name='unique_enrollment'),
@@ -128,4 +131,26 @@ class Grade(db.Model):
     
     def __repr__(self):
         return f'<Grade {self.id}>'
+
+class Attendance(db.Model):
+    __tablename__ = 'attendance'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    enrollment_id = db.Column(db.Integer, db.ForeignKey('enrollments.id'), nullable=False)
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'), nullable=False)
+    session_number = db.Column(db.Integer, nullable=False)  # Số buổi học: 1, 2, 3, ...
+    attendance_date = db.Column(db.Date, nullable=False)
+    status = db.Column(db.Enum('present', 'absent', 'late', 'excused'), default='absent')
+    marked_by = db.Column(db.Integer, db.ForeignKey('instructors.id'), nullable=False)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.TIMESTAMP, default=datetime.utcnow)
+    
+    instructor = db.relationship('Instructor', backref='marked_attendances')
+    
+    __table_args__ = (
+        db.UniqueConstraint('enrollment_id', 'section_id', 'session_number', name='unique_attendance'),
+    )
+    
+    def __repr__(self):
+        return f'<Attendance {self.id} - Session {self.session_number}>'
 
